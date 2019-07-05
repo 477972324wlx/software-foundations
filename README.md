@@ -22,4 +22,12 @@ My solutions to the Software Foundations Book https://softwarefoundations.cis.up
 | Extraction    | -                  |   -                              |
 | Auto          | -                  | -                                |
 
+## Volume 3 : Verified Functional Algorithms  (LF):
+
+| Chapter name  | Required Exercises | Additional Exercises             |
+|---------------|--------------------|----------------------------------|
+|  Perm         |     1 problem left |  -                               |
+|  Sort         |     1 problem left | 4 left                           |
+
+
 
