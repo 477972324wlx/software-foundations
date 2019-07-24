@@ -791,7 +791,14 @@ Qed.
 Theorem step_deterministic :
   deterministic step.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros x y z H. generalize dependent z.
+  induction H; intros.
+  inversion H; subst; try reflexivity; try inversion H4.
+  inversion H; subst; try reflexivity; try inversion H4.
+  inversion H0; subst. inversion H. inversion H.
+  replace t1'0 with t1'. reflexivity.
+  apply IHstep. assumption.
+Qed.
 (** [] *)
 
 Module Temp5.
@@ -841,8 +848,8 @@ Definition bool_step_prop4 :=
 
 Example bool_step_prop4_holds :
   bool_step_prop4.
-Proof.
-  (* FILL IN HERE *) Admitted.
+Proof. 
+Admitted.
 (** [] *)
 
 (** **** Exercise: 3 stars, standard, optional (properties_of_altered_step)  
@@ -1018,7 +1025,8 @@ Qed.
 Lemma test_multistep_2:
   C 3 -->* C 3.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  constructor. 
+Qed.
 (** [] *)
 
 (** **** Exercise: 1 star, standard, optional (test_multistep_3)  *)
@@ -1027,7 +1035,8 @@ Lemma test_multistep_3:
    -->*
       P (C 0) (C 3).
 Proof.
-  (* FILL IN HERE *) Admitted.
+constructor.
+Qed.
 (** [] *)
 
 (** **** Exercise: 2 stars, standard (test_multistep_4)  *)
@@ -1042,7 +1051,11 @@ Lemma test_multistep_4:
         (C 0)
         (C (2 + (0 + 3))).
 Proof.
-  (* FILL IN HERE *) Admitted.
+  econstructor. apply ST_Plus2. constructor.
+  apply ST_Plus2. constructor. constructor.
+  econstructor. apply ST_Plus2. constructor.
+  constructor. econstructor.
+Qed.
 (** [] *)
 
 (* ================================================================= *)
@@ -1073,7 +1086,25 @@ Proof.
   inversion P1 as [P11 P12]; clear P1.
   inversion P2 as [P21 P22]; clear P2.
   generalize dependent y2.
-  (* FILL IN HERE *) Admitted.
+  induction P11.
+    destruct x; intros. inversion P21.
+      reflexivity.
+      inversion H.
+    assert(value (P x1 x2)).
+      apply nf_is_value; assumption.
+    inversion H.
+    intros. apply IHP11; try assumption.
+    inversion P21; subst. 
+      destruct y2.
+        inversion H.
+        assert (value (P y2_1 y2_2)).
+          apply nf_is_value; assumption.
+        inversion H0.
+        assert(y = y0).
+          eapply step_deterministic.
+          apply H. apply H0.
+        subst. apply H1.
+  Qed.
 (** [] *)
 
 (** Indeed, something stronger is true for this language (though not
@@ -1111,7 +1142,11 @@ Lemma multistep_congr_2 : forall t1 t2 t2',
      t2 -->* t2' ->
      P t1 t2 -->* P t1 t2'.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros. induction H0.
+  constructor.
+  econstructor. apply ST_Plus2. assumption.
+  apply H0. assumption.
+Qed.
 (** [] *)
 
 (** With these lemmas in hand, the main proof is a straightforward
@@ -1220,7 +1255,17 @@ Theorem eval__multistep : forall t n,
     includes [-->]. *)
 
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros.
+  induction H. constructor.
+  eapply multi_trans.
+  assert(P t1 t2 -->* P (C n1) t2).
+    apply multistep_congr_1; assumption.
+    apply H1.
+  eapply multi_trans.
+    apply multistep_congr_2. constructor.
+    apply IHeval2.
+  econstructor; constructor.
+Qed.
 (** [] *)
 
 (** **** Exercise: 3 stars, advanced (eval__multistep_inf)  
@@ -1244,7 +1289,12 @@ Lemma step__eval : forall t t' n,
      t  ==> n.
 Proof.
   intros t t' n Hs. generalize dependent n.
-  (* FILL IN HERE *) Admitted.
+  induction Hs; intros; inversion H; subst. constructor; constructor.
+  constructor. apply IHHs. assumption.
+  assumption. inversion H0; subst.
+  constructor. assumption. apply IHHs.
+  assumption.
+  Qed.
 (** [] *)
 
 (** The fact that small-step reduction implies big-step evaluation is
@@ -1260,7 +1310,21 @@ Proof.
 Theorem multistep__eval : forall t t',
   normal_form_of t t' -> exists n, t' = C n /\ t ==> n.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros. unfold normal_form_of in H.
+  inversion H.
+  induction H0.
+  assert(value x).
+    apply nf_is_value. assumption.
+  inversion H0.
+  exists n. split; try reflexivity; try constructor.
+  assert(exists n : nat, z = C n /\ y ==> n).
+    apply IHmulti. split; assumption.
+    assumption.
+  inversion H3 as [n [H4 H5]]; clear H3.
+  exists n. split. assumption.
+  eapply step__eval. apply H0.
+  assumption.
+Qed.
 (** [] *)
 
 (* ================================================================= *)
