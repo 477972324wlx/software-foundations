@@ -1130,8 +1130,15 @@ Theorem if_minus_plus :
     ELSE Y ::= X + Z
   FI
   {{fun st => st Y = st X + st Z}}.
-Proof.
-  (* FILL IN HERE *) Admitted.
+Proof. 
+apply hoare_if.
+  - eapply hoare_consequence_pre. apply hoare_asgn.
+    unfold bassn, assn_sub, t_update, assert_implies.
+    simpl. intros st [_ H]. apply leb_complete in H. inversion H; omega.
+  - eapply hoare_consequence_pre. apply hoare_asgn.
+    unfold bassn, assn_sub, t_update, assert_implies.
+    simpl. intros st [_ H]. reflexivity.
+Qed.
 (** [] *)
 
 (* ----------------------------------------------------------------- *)
