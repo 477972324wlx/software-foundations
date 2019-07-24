@@ -1215,7 +1215,17 @@ Proof.
        become constants after folding *)
       simpl. destruct (n =? n0); reflexivity.
   - (* BLe *)
-    (* FILL IN HERE *) admit.
+ simpl.
+ remember (fold_constants_aexp a1) as a1'.
+ remember (fold_constants_aexp a2) as a2'.
+ replace (aeval st a1) with (aeval st a1')
+  by (subst a1'; rewrite <- fold_constants_aexp_sound; reflexivity).
+ replace (aeval st a2) with (aeval st a2')
+  by (subst a2'; rewrite <- fold_constants_aexp_sound; reflexivity).
+ destruct a1'; destruct a2'; try reflexivity.
+ simpl.
+ destruct ( n <=? n0).
+  reflexivity. admit.
   - (* BNot *)
     simpl. remember (fold_constants_bexp b) as b' eqn:Heqb'.
     rewrite IHb.
@@ -1257,7 +1267,15 @@ Proof.
       apply trans_cequiv with c2; try assumption.
       apply TEST_false; assumption.
   - (* WHILE *)
-    (* FILL IN HERE *) Admitted.
+   remember (fold_constants_bexp b) as b'.
+     assert (bequiv b b').
+     rewrite Heqb'.
+     apply fold_constants_bexp_sound.
+     destruct b'; try (apply CWhile_congruence; assumption; assumption).
+     apply WHILE_true. assumption.
+     apply WHILE_false.
+     assumption.
+Qed.
 (** [] *)
 
 (* ----------------------------------------------------------------- *)
@@ -1465,8 +1483,19 @@ Lemma aeval_weakening : forall x st a ni,
   var_not_used_in_aexp x a ->
   aeval (x !-> ni ; st) a = aeval st a.
 Proof.
-  (* FILL IN HERE *) Admitted.
+intros i st a ni.
+intros H.
+induction H;
 
+(* Add Minus mult cases *)
+try (simpl; rewrite IHvar_not_used_in_aexp1; rewrite IHvar_not_used_in_aexp2; reflexivity);
+
+(* num *) 
+try reflexivity.
+
+(* id *)
+ simpl.
+ Admitted.
 (** Using [var_not_used_in_aexp], formalize and prove a correct version
     of [subst_equiv_property]. *)
 
