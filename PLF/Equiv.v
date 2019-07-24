@@ -378,7 +378,39 @@ Theorem WHILE_true : forall b c,
     (WHILE b DO c END)
     (WHILE true DO SKIP END).
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros.
+  intros st st'.
+  split.
+  
+  intros H2.
+  inversion H2.
+  subst. 
+  simpl in H.
+  unfold bequiv in H.
+  rewrite H in H5.
+  simpl in H5.
+  inversion H5.
+  
+  subst.
+  assert (~ st =[ WHILE b DO c END ]=> st' ).
+   apply WHILE_true_nonterm.
+   assumption.
+   
+   apply H0 in H2.
+   inversion H2.
+
+  intros H2.
+   assert (~ st =[ WHILE true DO SKIP END ]=> st' ).
+  apply WHILE_true_nonterm.
+  simpl.
+  unfold bequiv.
+  simpl.
+  reflexivity.
+  
+  apply H0 in H2.
+  inversion H2.
+Qed.
+  
 (** [] *)
 
 (** A more interesting fact about [WHILE] commands is that any number
@@ -413,7 +445,30 @@ Proof.
 Theorem seq_assoc : forall c1 c2 c3,
   cequiv ((c1;;c2);;c3) (c1;;(c2;;c3)).
 Proof.
-  (* FILL IN HERE *) Admitted.
+   intros c1 c2 c3.
+   split.
+   intros H.
+   inversion H.
+   subst.
+   inversion H2.
+   subst.
+   apply E_Seq with st'1.
+   assumption.
+   apply E_Seq with st'0.
+   assumption.
+   apply H5.
+
+ intros H.
+ inversion H.
+ inversion H5.
+ subst.
+ apply E_Seq with st'1.
+  apply E_Seq with st'0.
+   assumption.
+   
+   assumption.
+  assumption.
+Qed.
 (** [] *)
 
 (** Proving program properties involving assignments is one place
@@ -443,7 +498,20 @@ Theorem assign_aequiv : forall (x : string) e,
   aequiv x e ->
   cequiv SKIP (x ::= e).
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros x e.
+  intros H.
+  unfold aequiv in H. unfold cequiv.
+  intros st st'.
+  
+  split.
+  intros H2.
+ inversion H2.
+ subst.
+ assert (Hx : st' =[ x ::= x ]=> (x !-> st' x ; st')).
+  { apply E_Ass. reflexivity. }
+
+Admitted.
+
 (** [] *)
 
 (** **** Exercise: 2 stars, standard (equiv_classes)  *)
@@ -708,7 +776,30 @@ Theorem CSeq_congruence : forall c1 c1' c2 c2',
   cequiv c1 c1' -> cequiv c2 c2' ->
   cequiv (c1;;c2) (c1';;c2').
 Proof.
-  (* FILL IN HERE *) Admitted.
+intros c1 c1' c2 c2'.
+intros H1 H2.
+split.
+ intros H3.
+ inversion H3.
+ subst.
+ apply E_Seq with st'0.
+  apply H1.
+  assumption.
+  
+  apply H2.
+  assumption.
+  
+ intros H3.
+ inversion H3.
+ subst.
+ apply E_Seq with st'0.
+  apply H1.
+  assumption.
+  
+  apply H2.
+  assumption.
+Qed.
+
 (** [] *)
 
 (** **** Exercise: 3 stars, standard (CIf_congruence)  *)
@@ -717,7 +808,48 @@ Theorem CIf_congruence : forall b b' c1 c1' c2 c2',
   cequiv (TEST b THEN c1 ELSE c2 FI)
          (TEST b' THEN c1' ELSE c2' FI).
 Proof.
-  (* FILL IN HERE *) Admitted.
+   intros b b' c1 c1' c2 c2'.
+intros H1 H2 H3.
+split.
+ intros H4.
+ inversion H4.
+  subst.
+  apply E_IfTrue.
+   unfold bequiv in H1.
+   rewrite <- H8.
+   rewrite H1.
+   reflexivity.
+   
+   apply H2.
+   assumption.
+   
+  subst.
+  apply E_IfFalse.
+   rewrite <- H8.
+   rewrite H1.
+   reflexivity.
+   
+   apply H3.
+   assumption.
+   
+ intros H4.
+ inversion H4; subst.
+  apply E_IfTrue.
+   rewrite <- H8.
+   rewrite H1.
+   reflexivity.
+   
+   apply H2.
+   assumption.
+   
+  apply E_IfFalse.
+   rewrite <- H8.
+   rewrite H1.
+   reflexivity.
+   
+   apply H3.
+   assumption.
+Qed.
 (** [] *)
 
 (** For example, here are two equivalent programs and a proof of their
